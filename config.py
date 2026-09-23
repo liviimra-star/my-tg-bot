@@ -1,7 +1,7 @@
 # config.py
 import os
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8911011039:AAH0Jl6JkCM1h50l2mOJ1-uQxguCF2DKm9Q")
 ADMIN_CHAT_ID = int(os.environ.get("ADMIN_CHAT_ID", 123456789))
 CHANNEL_ID = os.environ.get("CHANNEL_ID", -1001234567890)   # sirf zip upload ke liye rakha
 
