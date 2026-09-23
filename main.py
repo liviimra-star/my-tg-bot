@@ -531,7 +531,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
     ud = context.user_data
 
-    if text.lower() == '/cancel':
+        if text.lower() == '/cancel':
         ud.clear()
         await update.message.reply_text("❌ Cancelled.")
         return
@@ -545,5 +545,4 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             nid = int(text)
             if add_admin_user(nid):
-                await update.message.reply_text(
-                    f"✅ Admin <code>{nid}</code> added!", parse_mod
+                                await update.message.reply_text(f"✅ Admin <code>{nid}</code> added!", parse_mode="HTML")
