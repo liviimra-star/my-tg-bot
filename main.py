@@ -494,8 +494,7 @@ async def admin_add_prompt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     if not is_admin_user(q.from_user.id): return
     context.user_data['awaiting_admin_add'] = True
-    await q.message.reply_text(
-        "👤 Nayi admin ki User ID bhejo.\n<i>(/cancel to abort)</i>", parse_mode="HTML")
+    await q.message.reply_text("Nayi admin ki User ID bhejo.\n/cancel to abort")
 
 async def admin_remove_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -503,13 +502,11 @@ async def admin_remove_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin_user(q.from_user.id): return
     admins = load_admins()
     if not admins:
-        await q.edit_message_text("Koi co-admin nahi hai.",
-                                  reply_markup=back_kb('admin_manage'))
+        await q.edit_message_text("Koi co-admin nahi hai.", reply_markup=back_kb('admin_manage'))
         return
-    kb = [[InlineKeyboardButton(f"❌ {a}", callback_data=f'rmadm_{a}')] for a in admins]
-    kb.append([InlineKeyboardButton("🔙 Back", callback_data='admin_manage')])
-    await q.edit_message_text("Kisko remove karna hai?",
-                              reply_markup=InlineKeyboardMarkup(kb))
+    kb = [[InlineKeyboardButton(f"{a}", callback_data=f"rmadm_{a}")] for a in admins]
+    kb.append([InlineKeyboardButton("Back", callback_data='admin_manage')])
+    await q.edit_message_text("Kisko remove karna hai?", reply_markup=InlineKeyboardMarkup(kb))
 
 async def admin_remove_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -517,13 +514,9 @@ async def admin_remove_confirm(update: Update, context: ContextTypes.DEFAULT_TYP
     if not is_admin_user(q.from_user.id): return
     aid = int(q.data.split('_')[-1])
     ok = remove_admin_user(aid)
-    await q.edit_message_text(
-        f"✅ Removed <code>{aid}</code>" if ok else "❌ Failed.",
-        reply_markup=back_kb('admin_manage'), parse_mode="HTML")
+    await q.edit_message_text(f"Removed {aid}" if ok else "Failed.", reply_markup=back_kb('admin_manage'), parse_mode="HTML")
 
-
-# ========== COMBINED TEXT HANDLER ==========
-# Single handler — fixes the "only first text handler fires" bug
+# ======= COMBINED TEXT HANDLER - FINAL =======
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
@@ -531,18 +524,34 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
     ud = context.user_data
 
-        if text.lower() == '/cancel':
+    if text.lower() == '/cancel':
         ud.clear()
-        await update.message.reply_text("❌ Cancelled.")
+        await update.message.reply_text("Cancelled.")
         return
 
     if not is_admin_user(u.id):
-        return  # non-admin text with no state = ignore
+        return
 
-    # Priority order for admin text states
     if ud.get('awaiting_admin_add'):
         ud['awaiting_admin_add'] = False
         try:
             nid = int(text)
             if add_admin_user(nid):
-                                await update.message.reply_text(f"✅ Admin <code>{nid}</code> added!", parse_mode="HTML")
+                await update.message.reply_text(f"Admin {nid} added!")
+            else:
+                await update.message.reply_text("Already admin.")
+        except:
+            await update.message.reply_text("Send valid ID.")
+        return
+
+    if ud.get('awaiting_admin_remove'):
+        ud['awaiting_admin_remove'] = False
+        try:
+            nid = int(text)
+            if remove_admin_user(nid):
+                await update.message.reply_text(f"Admin {nid} removed!")
+            else:
+                await update.message.reply_text("Not found.")
+        except:
+            await update.message.reply_text("Send valid ID.")
+        return
