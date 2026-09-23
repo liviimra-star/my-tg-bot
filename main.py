@@ -1,5 +1,5 @@
-    from alive import keep_alive
-    keep_alive()
+from alive import keep_alive
+keep_alive()
 # ============================================================
 #  Premium Video Bot — Single File Build
 #  Owner-controlled via /admin panel
